@@ -9,6 +9,7 @@ import typer
 
 from .config import ConfigurationError, load_config
 from .discovery import discover, load_spec
+from .inventory.lab_inventory import lab_objects
 from .reporting import write_html, write_json
 from .scanner import scan
 
@@ -53,6 +54,18 @@ def endpoints_command(
 ) -> None:
     """Display the endpoint inventory."""
     discover_command(config)
+
+
+@app.command("objects")
+def objects_command() -> None:
+    """Display the known lab object inventory."""
+    for resource in lab_objects().all():
+        shared = ",".join(resource.shared_with) if resource.shared_with else "-"
+        typer.echo(
+            f"{resource.resource_type:<12} {resource.object_id:<8} "
+            f"owner={resource.owner:<8} tenant={resource.tenant_id:<9} "
+            f"visibility={resource.visibility:<7} shared={shared}"
+        )
 
 
 @app.command("scan")

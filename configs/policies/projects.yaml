@@ -1,0 +1,12 @@
+resource: projects
+authorization:
+  read:
+    - owner
+    - member
+    - admin
+  update:
+    - owner
+  delete:
+    - owner
+tenant_isolation:
+  enabled: true

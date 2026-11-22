@@ -1,0 +1,13 @@
+resource: documents
+authorization:
+  read:
+    - owner
+    - explicitly_shared
+    - admin
+  update:
+    - owner
+    - explicitly_shared
+  delete:
+    - owner
+tenant_isolation:
+  enabled: true
