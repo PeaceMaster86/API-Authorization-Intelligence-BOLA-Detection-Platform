@@ -29,6 +29,8 @@ export LAB_BOB_PASSWORD=bob-password
 export LAB_CHARLIE_PASSWORD=charlie-password
 export LAB_ADMIN_PASSWORD=admin-password
 python -m scanner.authz_intel.cli validate --config configs/lab.yaml
+python -m scanner.authz_intel.cli discover --config configs/lab.yaml
+python -m scanner.authz_intel.cli endpoints --config configs/lab.yaml
 python -m scanner.authz_intel.cli scan \
   --config configs/lab.yaml \
   --output report.json
