@@ -5,6 +5,8 @@ target:
     - 127.0.0.1
 scanner:
   timeout: 10
+  allow_write_tests: false
+  allow_destructive_tests: false
 principals:
   alice:
     type: credentials

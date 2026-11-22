@@ -29,6 +29,8 @@ class ScannerConfig:
     allowed_hosts: frozenset[str]
     timeout: float
     principals: tuple[PrincipalConfig, ...]
+    allow_write_tests: bool = False
+    allow_destructive_tests: bool = False
 
     def validate_target(self) -> None:
         parsed = urlparse(self.base_url)
@@ -98,6 +100,8 @@ def load_config(path: str | Path) -> ScannerConfig:
         allowed_hosts=frozenset(hosts),
         timeout=float(scanner.get("timeout", 10.0)),
         principals=principals,
+        allow_write_tests=bool(scanner.get("allow_write_tests", False)),
+        allow_destructive_tests=bool(scanner.get("allow_destructive_tests", False)),
     )
     if result.timeout <= 0 or result.timeout > 120:
         raise ConfigurationError("scanner.timeout must be between 0 and 120 seconds")
