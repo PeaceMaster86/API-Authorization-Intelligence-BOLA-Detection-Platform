@@ -5,6 +5,10 @@ API authorization tester. It includes a deliberately vulnerable FastAPI lab,
 secure mode, OpenAPI endpoint discovery, cross-identity BOLA probes, and
 JSON/HTML reports.
 
+See [architecture](docs/architecture.md), [methodology](docs/methodology.md),
+[threat model](docs/threat-model.md), [test cases](docs/test-cases.md), and
+[limitations](docs/limitations.md) for implementation details.
+
 ## Quick start
 
 ```bash
@@ -41,6 +45,18 @@ The scanner configuration allowlists the target host and reads credentials
 from environment variables. Tokens are used only in memory and are not
 written to reports. Tests use the application in-process and do not require
 PostgreSQL.
+
+## Docker
+
+Start the lab, PostgreSQL boundary, and dashboard with:
+
+```bash
+docker compose up --build
+```
+
+The scanner remains a local Python command so its target scope and credentials
+stay under tester control. Run `make test` and `make build-dashboard` for the
+same checks used in CI.
 
 ## Dashboard
 

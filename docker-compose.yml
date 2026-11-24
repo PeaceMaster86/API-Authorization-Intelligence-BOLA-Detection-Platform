@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: authz_intel
+      POSTGRES_USER: authz_intel
+      POSTGRES_PASSWORD: authz_intel_dev_only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U authz_intel -d authz_intel"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  lab:
+    build:
+      context: .
+      dockerfile: lab/target_api/Dockerfile
+    environment:
+      TARGET_AUTHZ_MODE: ${TARGET_AUTHZ_MODE:-vulnerable}
+      JWT_SECRET: ${JWT_SECRET:-replace-this-development-secret-32-bytes}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  dashboard:
+    build:
+      context: dashboard/frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - lab
+
+volumes:
+  postgres_data:
