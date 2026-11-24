@@ -4,7 +4,7 @@ from ..auth_provider import AuthenticatedPrincipal
 from ..authorization.policy_engine import AccessDecision, PolicyEngine
 from ..inventory.object_registry import ObjectRecord
 from ..inventory.principal_registry import Principal
-from ..reporting import Finding
+from ..reporting import Evidence, Finding
 from ..request_executor import RequestExecutor
 from ..verification.state_verifier import state_changed, write_verified
 
@@ -63,6 +63,20 @@ class WriteBOLADetector:
                 status_code=attempted.status_code,
                 evidence=f"Owner re-read confirmed persisted marker {marker}",
                 confidence=0.99,
+                observed_behavior=(
+                    f"HTTP {attempted.status_code} accepted an unauthorized PATCH "
+                    "and the owner re-read confirmed persistence"
+                ),
+                reproduction_steps=(
+                    "Authenticate as the resource owner and record the original state.",
+                    f"PATCH /api/v1/documents/{resource.object_id} as the testing principal.",
+                    "Re-read as the owner and verify the harmless marker persisted.",
+                ),
+                evidence_data=Evidence(
+                    request={"method": "PATCH", "path": path, "json": {"content": marker}},
+                    response={"status_code": attempted.status_code, "body": attempted.body},
+                    verification_result="owner re-read confirmed the marker persisted",
+                ),
             )
         finally:
             executor.execute(

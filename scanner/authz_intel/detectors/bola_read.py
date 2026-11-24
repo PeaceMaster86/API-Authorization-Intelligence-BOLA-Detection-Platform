@@ -6,7 +6,7 @@ from ..auth_provider import AuthenticatedPrincipal
 from ..authorization.policy_engine import AccessDecision, PolicyEngine
 from ..inventory.object_registry import ObjectRecord
 from ..inventory.principal_registry import Principal
-from ..reporting import Finding
+from ..reporting import Evidence, Finding
 from ..request_executor import RequestExecutor
 from ..verification.confidence_engine import read_confidence
 from ..verification.response_comparator import compare_object_response
@@ -65,6 +65,20 @@ class ReadBOLADetector:
                             f"id/owner/content markers: {comparison}"
                         ),
                         confidence=confidence,
+                        observed_behavior=(
+                            f"HTTP {observed.status_code} returned the protected object "
+                            "to a principal denied by policy"
+                        ),
+                        reproduction_steps=(
+                            "Authenticate as the testing principal.",
+                            f"GET /api/v1/documents/{resource.object_id}.",
+                            "Compare the response with the authorized owner's baseline.",
+                        ),
+                        evidence_data=Evidence(
+                            request={"method": "GET", "path": f"/api/v1/documents/{resource.object_id}"},
+                            response={"status_code": observed.status_code, "body": observed.body},
+                            verification_result=f"baseline comparison: {comparison}",
+                        ),
                     )
                 )
         return findings

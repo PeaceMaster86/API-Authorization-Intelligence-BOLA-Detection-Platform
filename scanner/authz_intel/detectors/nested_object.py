@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ..auth_provider import AuthenticatedPrincipal
-from ..reporting import Finding
+from ..reporting import Evidence, Finding
 from ..request_executor import RequestExecutor
 
 
@@ -42,6 +42,19 @@ class NestedObjectDetector:
                             status_code=200,
                             evidence="Endpoint returned a mismatched parent-child object pair",
                             confidence=0.95,
+                            observed_behavior="A child object was returned under an unrelated parent identifier",
+                            reproduction_steps=(
+                                f"GET /api/v1/projects/{project_id}/tasks/{task_id}.",
+                                "Verify that the authenticated principal is authorized for both objects.",
+                            ),
+                            evidence_data=Evidence(
+                                request={
+                                    "method": "GET",
+                                    "path": f"/api/v1/projects/{project_id}/tasks/{task_id}",
+                                },
+                                response={"status_code": response.status_code, "body": response.body},
+                                verification_result="response identifiers matched the mismatched request pair",
+                            ),
                         )
                     )
         return findings
