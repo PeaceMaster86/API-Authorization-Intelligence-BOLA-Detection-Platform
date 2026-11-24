@@ -25,6 +25,44 @@ principals:
         load_config(config_path)
 
 
+def test_load_config_requires_explicit_allowlist(tmp_path):
+    config_path = tmp_path / "lab.yaml"
+    config_path.write_text(
+        """
+target:
+  base_url: http://127.0.0.1:8000
+principals:
+  alice:
+    type: bearer_env
+    token_env: ALICE_TOKEN
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ConfigurationError, match="allowed_hosts is required"):
+        load_config(config_path)
+
+
+def test_openapi_url_must_share_the_allowlisted_scope(tmp_path):
+    config_path = tmp_path / "lab.yaml"
+    config_path.write_text(
+        """
+target:
+  base_url: http://127.0.0.1:8000
+  openapi_url: http://metadata.internal/openapi.json
+  allowed_hosts: [127.0.0.1]
+principals:
+  alice:
+    type: bearer_env
+    token_env: ALICE_TOKEN
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ConfigurationError, match="openapi_url host"):
+        load_config(config_path)
+
+
 def test_authentication_reads_secret_from_environment(tmp_path, monkeypatch):
     config_path = tmp_path / "lab.yaml"
     config_path.write_text(

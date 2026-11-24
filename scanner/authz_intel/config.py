@@ -33,14 +33,19 @@ class ScannerConfig:
     allow_destructive_tests: bool = False
 
     def validate_target(self) -> None:
-        parsed = urlparse(self.base_url)
+        self._validate_url(self.base_url, "base_url")
+        if self.openapi_url:
+            self._validate_url(self.openapi_url, "openapi_url")
+
+    def _validate_url(self, value: str, label: str) -> None:
+        parsed = urlparse(value)
         if parsed.scheme not in {"http", "https"} or not parsed.hostname:
-            raise ConfigurationError("base_url must be an absolute HTTP(S) URL")
+            raise ConfigurationError(f"{label} must be an absolute HTTP(S) URL")
         if parsed.username or parsed.password:
-            raise ConfigurationError("base_url must not contain credentials")
-        if parsed.hostname not in self.allowed_hosts:
+            raise ConfigurationError(f"{label} must not contain credentials")
+        if parsed.hostname.lower() not in self.allowed_hosts:
             raise ConfigurationError(
-                f"target host {parsed.hostname!r} is not in allowed_hosts"
+                f"{label} host {parsed.hostname!r} is not in allowed_hosts"
             )
 
 
@@ -83,10 +88,12 @@ def load_config(path: str | Path) -> ScannerConfig:
         raise ConfigurationError("target.base_url is required")
     hosts = target.get("allowed_hosts")
     if hosts is None:
-        parsed = urlparse(base_url)
-        hosts = [parsed.hostname] if parsed.hostname else []
+        raise ConfigurationError("target.allowed_hosts is required")
     if not isinstance(hosts, list) or not all(isinstance(host, str) for host in hosts):
         raise ConfigurationError("target.allowed_hosts must be a list of hostnames")
+    hosts = [host.lower().strip() for host in hosts]
+    if not hosts or any(not host or host == "*" for host in hosts):
+        raise ConfigurationError("target.allowed_hosts must contain concrete hostnames")
 
     raw_principals = _required_mapping(values.get("principals"), "principals")
     principals = tuple(_principal(name, item) for name, item in raw_principals.items())

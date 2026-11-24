@@ -23,6 +23,8 @@
 | Destructive test impact | Delete tests disabled by default |
 | False positive BOLA | Owner baseline, identity/content comparison, and state verification |
 | Cross-tenant exposure | Deterministic tenant-aware policy evaluation |
+| Weak deployment secret | JWT secret length validation and explicit environment configuration |
+| OpenAPI SSRF | OpenAPI URL must use an explicitly allowlisted host |
 
 This tool is for authorized testing only. It must not be used against systems
 without explicit permission.

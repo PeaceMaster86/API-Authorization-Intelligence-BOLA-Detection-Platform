@@ -15,6 +15,10 @@ from pydantic import BaseModel, ConfigDict
 JWT_ALGORITHM = "HS256"
 JWT_SECRET = os.getenv("JWT_SECRET", "development-only-change-me-32-bytes")
 MODE = os.getenv("TARGET_AUTHZ_MODE", "vulnerable").lower()
+if MODE not in {"vulnerable", "secure"}:
+    raise RuntimeError("TARGET_AUTHZ_MODE must be 'vulnerable' or 'secure'")
+if len(JWT_SECRET) < 32:
+    raise RuntimeError("JWT_SECRET must contain at least 32 characters")
 
 
 @dataclass(frozen=True)
