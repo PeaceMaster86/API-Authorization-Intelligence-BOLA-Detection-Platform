@@ -41,3 +41,19 @@ The scanner configuration allowlists the target host and reads credentials
 from environment variables. Tokens are used only in memory and are not
 written to reports. Tests use the application in-process and do not require
 PostgreSQL.
+
+## Dashboard
+
+The dashboard consumes the generated report and optional inventory API
+endpoints. Start it with:
+
+```bash
+cd dashboard/frontend
+npm install
+npm run dev
+```
+
+Set `VITE_REPORT_URL` to the URL of a generated JSON report and
+`VITE_API_BASE_URL` to the backend inventory API. The UI displays empty or
+error states when those data sources are unavailable; it does not fabricate
+security statistics.
